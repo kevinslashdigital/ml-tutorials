@@ -1,4 +1,7 @@
 dataset/
+html/
+paragraphs/
+short_paragraphs/
 *.DS_Store
 *.pyc
 settings.json

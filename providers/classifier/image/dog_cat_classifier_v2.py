@@ -5,7 +5,6 @@ from tensorflow.keras import Model
 from tensorflow.keras.optimizers import RMSprop
 import matplotlib.pyplot as plt
 import cv2
-import inception
 
 class DogCatClassifier():
 
