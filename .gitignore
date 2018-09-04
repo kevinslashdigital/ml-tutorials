@@ -1,4 +1,6 @@
-dataset/
+dataset/20news
+dataset/dog_cat
+dataset/model
 html/
 paragraphs/
 short_paragraphs/
