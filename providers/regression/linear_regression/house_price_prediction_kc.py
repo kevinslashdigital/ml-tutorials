@@ -12,32 +12,17 @@ class HousePredictor():
         pass
     
     def preprocessing(self):
-        raw_data =  np.array([
-            [3, 2000, 'Normaltown', 250000],
-            [2, 800, 'Hipstertown', 300000],
-            [2, 850, 'Normaltown', 150000],
-            [1, 550, 'Normaltown', 78000],
-            [4, 2000, 'Skidrow', 150000]
-        ])
-
-        pd_data = pd.DataFrame(data=raw_data[:,:])
-        pd_data = pd.get_dummies(pd_data, columns=[2])
-        pd_data = pd_data[[0, 1, '2_Hipstertown', '2_Normaltown','2_Skidrow',3]]
-        dataset = pd_data.values
-
-        # convert city to categorical feature
-        # cities = pd_data[2].tolist()
-        # city_one_hot = LabelBinarizer()
-        # city_one_hot = city_one_hot.fit_transform(cities)
-        # print(cities,city_one_hot)
-
-        # dataset =  np.array([
-        #     [3, 2000, 0 ,1, 0, 250000],
-        #     [2, 800, 1 ,0, 0, 300000],
-        #     [2, 850, 0 ,1, 0, 150000],
-        #     [1, 550, 0 ,1, 0, 78000],
-        #     [4, 2000, 0 ,0, 1, 150000]
-        # ])
+        filename = 'dataset/house_price/kc_house_data.csv'
+        df = pd.read_csv(filename)
+        print(df.head())
+        df = df[['bedrooms','bathrooms','sqft_living','condition','grade','price']]
+        # df = pd.get_dummies(df, columns=['condition','grade'])
+        df['condition'] = df['condition'].apply(lambda x: x.cat.codes)
+        df['grade'] = df['grade'].astype('category')
+        print(df.head())
+        # pd_data = pd_data[[0, 1, '2_Hipstertown', '2_Normaltown','2_Skidrow',3]]
+  
+        dataset = df.values
 
         x_test, y_test = dataset[ :,:-1], dataset[ :,-1]
         x_train, y_train = dataset[ :,:-1], dataset[ :,-1]
@@ -48,12 +33,12 @@ class HousePredictor():
         train_data, train_label, test_data, test_label = self.preprocessing()
         # LinearRegression(copy_X=True, fit_intercept=True, n_jobs=1, normalize=False)
         # reg = linear_model.LinearRegression()
-        # reg = linear_model.Ridge(alpha = .01)
+        # reg = linear_model.Ridge(alpha = .5)
         # reg = linear_model.Lasso(alpha = 0.7)
-        # reg = linear_model.LassoLars(alpha=.1)
+        reg = linear_model.LassoLars(alpha=0.2)
         # reg = linear_model.BayesianRidge()
-        # reg = linear_model.ElasticNet(alpha = 0.02)
-        reg = linear_model.SGDRegressor()
+        # reg = linear_model.ElasticNet(alpha = 0.2)
+        # reg = linear_model.SGDRegressor()
         reg.fit(train_data,train_label)
         print('coef_ = {} , intercept_ = {}'.format(reg.coef_, reg.intercept_))
         self.predict(reg,test_data,test_label)
