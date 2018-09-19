@@ -9,40 +9,19 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import Pipeline
-import seaborn as sns
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.ensemble import GradientBoostingRegressor
-from scipy import stats
 
 class HousePredictor():
 
     def __init__(self, *args, **kwargs):
         pass
-
-    def target_analysis(self,data, column):
-        plt.subplots(figsize=(12,9))
-        sns.distplot(data[column], fit=stats.norm)
-        # Get the fitted parameters used by the function
-        (mu, sigma) = stats.norm.fit(data[column])
-        # plot with the distribution
-        plt.legend(['Normal dist. ($\mu=$ {:.2f} and $\sigma=$ {:.2f} )'.format(mu, sigma)], loc='best')
-        plt.ylabel('Frequency')
-        #Probablity plot
-        fig = plt.figure()
-        stats.probplot(data[column], plot=plt)
-        plt.show()
     
     def preprocessing(self):
-        filename = 'dataset/house_price/kc_house_data.csv'
+        filename = 'dataset/house_price/train_house_price_kaggle.csv'
+
         df = pd.read_csv(filename)
         print(df.head())
         df = df[['bedrooms','bathrooms','sqft_living','sqft_lot','sqft_above','condition','grade','price']]
-        #we use log function which is in numpy
-        df['price'] = np.log1p(df['price'])
-        # self.target_analysis(df,'price')
-
-        # return None, None, None, None
-
+    
         # convert city to categorical feature
         cons_binarizer = LabelBinarizer()
         cons_one_hot = cons_binarizer.fit_transform(df['condition'])
@@ -70,18 +49,16 @@ class HousePredictor():
     def train(self):
         train_data, train_label, test_data, test_label = self.preprocessing()
         # LinearRegression(copy_X=True, fit_intercept=True, n_jobs=1, normalize=False)
-        # reg = linear_model.LinearRegression() 
-        reg = RandomForestRegressor(n_estimators=1000)
+        # reg = linear_model.LinearRegression()
         # reg = linear_model.Ridge(alpha = .5)
-        # reg = linear_model.RidgeCV(alphas=[0.1, 1.0, 10.0])
+        reg = linear_model.RidgeCV(alphas=[0.1, 1.0, 10.0])
         # reg = linear_model.Lasso(alpha = 0.7)
         # reg = linear_model.LassoLars(alpha=0.1)
         # reg = linear_model.BayesianRidge()
         # reg = linear_model.ElasticNet(random_state=4, selection='random')
         # reg = linear_model.SGDRegressor()
-        # req = GradientBoostingRegressor(n_estimators=100, max_depth=4)
-        # reg = Pipeline([('poly', PolynomialFeatures(degree=3)),
-        #                 ('linear',linear_model.LinearRegression(fit_intercept=False))])
+        reg = Pipeline([('poly', PolynomialFeatures(degree=3)),
+                        ('linear',linear_model.LinearRegression(fit_intercept=False))])
         reg.fit(train_data,train_label)
         # reg.named_steps['linear'].coef_
         # print('coef_ = {} , intercept_ = {}'.format(reg.coef_, reg.intercept_))
@@ -97,7 +74,6 @@ class HousePredictor():
         if y_test is not None: 
             print(y_test)
             print(y_predict)
-            print("Accuracy --> ", model.score(x_test, y_test)*100)
             # Explained variance score: 1 is perfect prediction
             print('Variance score: %.2f' % r2_score(y_test, y_predict))
             # The mean squared error
