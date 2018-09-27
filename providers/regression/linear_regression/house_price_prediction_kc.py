@@ -36,10 +36,11 @@ class HousePredictor():
         filename = 'dataset/house_price/kc_house_data.csv'
         df = pd.read_csv(filename)
         print(df.head())
-        df = df[['bedrooms','bathrooms','sqft_living','sqft_lot','sqft_above','condition','grade','price']]
+        df = df[['bedrooms','bathrooms','sqft_living','condition','sqft_basement','yr_built','grade','price']]
         #we use log function which is in numpy
         df['price'] = np.log1p(df['price'])
         # self.target_analysis(df,'price')
+        print('missing value', df.columns[df.isnull().any()])
 
         # return None, None, None, None
 
@@ -56,8 +57,33 @@ class HousePredictor():
         df = df[[c for c in df if c not in cols_at_end] + [c for c in cols_at_end if c in df]]
 
         del df['condition']
-        print(df.head())
-        
+        # ax1 = sns.boxplot(x=df['bedrooms'])
+
+        # print(df.head())
+        print(df.shape)
+        df = df[(np.abs(stats.zscore(df)) < 5).all(axis=1)]
+        print(df.shape)
+        # ax2 = sns.boxplot(x=df_new['bedrooms'])
+
+      
+        # col = ['bedrooms','bathrooms','sqft_living','sqft_basement','yr_built','grade','price']
+        # sns.set(style='ticks')
+        # sns.pairplot(df[col], size=3, kind='reg')
+
+     
+
+        # #Coralation plot
+        # corr = df.corr()
+        # plt.subplots(figsize=(20,9))
+        # sns.heatmap(corr, annot=True)
+
+        # top_feature = corr.index[abs(corr['price']>0.5)]
+        # plt.subplots(figsize=(12, 8))
+        # top_corr = df[top_feature].corr()
+        # sns.heatmap(top_corr, annot=True)
+        # # plt.show()
+        # df = df[top_feature]
+    
         # convert pf to numpy array
         dataset = df.values
 
@@ -70,8 +96,8 @@ class HousePredictor():
     def train(self):
         train_data, train_label, test_data, test_label = self.preprocessing()
         # LinearRegression(copy_X=True, fit_intercept=True, n_jobs=1, normalize=False)
-        # reg = linear_model.LinearRegression() 
-        reg = RandomForestRegressor(n_estimators=1000)
+        reg = linear_model.LinearRegression() 
+        # reg = RandomForestRegressor(n_estimators=1000)
         # reg = linear_model.Ridge(alpha = .5)
         # reg = linear_model.RidgeCV(alphas=[0.1, 1.0, 10.0])
         # reg = linear_model.Lasso(alpha = 0.7)
@@ -106,7 +132,7 @@ class HousePredictor():
             plt.plot(x_test[:,:1].flatten(), y_test,  color='black')
             plt.plot(x_test[:,:1].flatten(), y_predict, lw=2, alpha=0.3, label='ROC game (AUC = 0.02)')
     
-            # plt.show()
+            plt.show()
         else:
             print('prediction is ',y_predict)
 
